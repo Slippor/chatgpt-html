@@ -1,139 +1,80 @@
-<!doctype html>
-<html class="no-js" lang="">
+<!DOCTYPE html>
+<html>
 
 <head>
-  <meta charset="utf-8">
-  <meta http-equiv="x-ua-compatible" content="ie=edge">
-  <title>Ai - Chat</title>
-  <meta name="description" content="">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <style>
-    #chatgpt-response {
-      font-family: "等线";
-      font-size: 20px;
-      color: #0000FF;
-      font-weight: bold;
-    }
-  </style>
-  <!-- favicon icon -->
-  <link rel="icon" href="img/favicon.png">
-  <!-- All CSS Files Here -->
-  <link rel="stylesheet" href="css/bootstrap.min.css">
-  <link rel="stylesheet" href="css/et-line-fonts.css">
-  <link rel="stylesheet" href="css/ionicons.min.css">
-  <link rel="stylesheet" href="css/magnific-popup.css">
-  <link rel="stylesheet" href="css/meanmenu.css">
-  <link rel="stylesheet" href="css/global.css">
-  <link rel="stylesheet" href="style.css">
-  <link rel="stylesheet" href="css/responsive.css">
-  <script src="js/vendor/modernizr-2.8.3.min.js"></script>
-  <script>
-    function printMessage(message) {
-      var responseText = document.getElementById("chatgpt-response");
-      responseText.innerHTML = "";
-      responseText.innerHTML += formatMessage(message);
-    }
-    function formatMessage(message){
-      return message.replace(/^\n+/, '').replace(/\n{2,}/g, '\n');
-    }
-    async function callCHATGPT() {
-      var xhr = new XMLHttpRequest();
-      var url = "https://api.openai.com/v1/chat/completions";
-      xhr.open("POST", url, true);
-      xhr.setRequestHeader("Content-Type", "application/json");
-      // 设置Key
-      xhr.setRequestHeader("Authorization", "Bearer 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");
-      xhr.onreadystatechange = function () {
-        if (xhr.readyState === 4) {
-          if (xhr.status === 200) {
-            var json = JSON.parse(xhr.responseText);
-            var response = json.choices[0].message.content;
-            printMessage(response);
-          }
-          else {
-            var json = JSON.parse(xhr.responseText);
-            var response = json.choices[0].message.content;
-            printMessage(response);
-          }
-        }
-      };
-      var prompt = document.getElementById("chat-gpt-input").value
-
-      var data = JSON.stringify({
-        "messages": [{ "role": "user", "content": prompt }],
-        "temperature": 0.9,
-        "top_p": 1,
-        "frequency_penalty": 0,
-        "presence_penalty": 0,
-        "model": "gpt-3.5-turbo"
-      });
-      console.log(data);
-      await printMessage('思考中......');
-      await xhr.send(data);
-    }
-  </script>
+    <meta charset="UTF-8">
+    <title>OpenAI-GPT</title>
+    <!-- favicon icon -->
+    <link rel="icon" href="img/favicon.png">
+    <!-- All CSS Files Here -->
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/et-line-fonts.css">
+    <link rel="stylesheet" href="css/ionicons.min.css">
+    <link rel="stylesheet" href="css/magnific-popup.css">
+    <link rel="stylesheet" href="css/meanmenu.css">
+    <link rel="stylesheet" href="css/global.css">
+    <link rel="stylesheet" href="index.css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <script src="js/vendor/modernizr-2.8.3.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/markdown-it@12.1.0/dist/markdown-it.min.js"></script>
 </head>
 
 <body>
-  <div class="page-loader">
-    <div class="loader">Loading...</div>
-  </div>
-  <header id="sticky-header">
-    <div class="header-area">
-      <div class="container sm-100">
-        <div class="row">
-          <div class="col-md-3 col-sm-2">
-            <div class="logo text-upper">
-              <h4>
-                <a href="index.html">OpenAi -GPT</a>
-              </h4>
-            </div>
-          </div>
-        </div>
-      </div>
+    <div class="page-loader">
+        <div class="loader">Loading...</div>
     </div>
-  </header>
-  <div class="basic-portfolio-area ptb-10">
-    <div class="filter-menu text-center mb-40">
-      <h4>与Ai对话，请描述您的需求-支持中文、英语、日语等</h4>
-    </div>
-    <div class="call-to-action-area gray-bg ptb-60">
-      <div class="container">
-        <div class="row">
-          <div class="col-md-9 col-sm-9 col-xs-12">
-            <div class="form-group">
-              <label></label>
-              <textarea class="form-control" id="chat-gpt-input" placeholder="输入描述" rows="3" resize="none"
-                style="width: 135%; margin: 0 auto; background-color: #f4f4f4; color: #333; border: 1px solid #ccc; border-radius: 12px;"></textarea>
+    <header id="sticky-header">
+        <div class="header-area">
+            <div class="container sm-100">
+                <div class="row">
+                    <div class="col-md-3 col-sm-2">
+                        <div class="logo text-upper">
+                            <h4>
+                                <a href="index_opt.html">OpenAi -GPT</a>
+                            </h4>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="col-md-3 col-sm-3 col-xs-12">
-              <div class="call-to-action">
-                <button onclick="callCHATGPT()" autocomplete="off" class="btn btn-large" href="#"
-                  style="background-color: #333; color: #f4f4f4; border-radius: 10px">
-                  <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>Click to
-                  <br>Answer</button>
-              </div>
-            </div>
-            <div class="col-md-9 col-sm-9 col-xs-12">
-              <div class="form-group">
-                <label></label>
-                <textarea class="form-control" id="chatgpt-response"
-                  placeholder="长途访问，请耐心等待回答 Ai生成它很快，但是由于网络问题我们需要等待，通常内容越长等待越久 如果长时间没反应请刷新页面重试" rows="26" resize="none"
-                  style="width: 150%;height: auto; margin: 0 auto; background-color: #f4f4f4; color: #333; border: 1px solid #ccc; border-radius: 10px; overflow: scroll;"
-                  readonly="true"></textarea>
-              </div>
-            </div>
-          </div>
         </div>
-      </div>
-      <script src="js/vendor/jquery-1.12.0.min.js"></script>
-      <script src="js/bootstrap.min.js"></script>
-      <script src="js/isotope.pkgd.min.js"></script>
-      <script src="js/imagesloaded.pkgd.min.js"></script>
-      <script src="js/jquery.magnific-popup.min.js"></script>
-      <script src="js/jquery.meanmenu.js"></script>
-      <script src="js/plugins.js"></script>
-      <script src="js/main.js"></script>
+    </header>
+    <div class="basic-portfolio-area ptb-10">
+        <div class="gray-bg ptb-10">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-10 col-sm-10 col-xs-12">
+                        <div>
+                            <div id="chatgpt-main">
+                                <label id="chatgpt-status"></label>
+                                <div id="chatgpt-session">
+                                </div>
+                            </div>
+                            <div class="call-to-action-area" id="chatgpt-inputcontainer">
+                                <textarea class="form-control" id="chatgpt-input" placeholder="输入需求" rows="3"
+                                    resize="none"></textarea>
+                                <button id="chatgpt-button" autocomplete="off" class="btn" href="#">
+                                    Click to<br>Answer
+                                    <span class="spinner-border spinner-border-sm d-none" role="status"
+                                        aria-hidden="true"></span>
+                                </button>
+                                <div style="height: 0px;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="js/vendor/jquery-1.12.0.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/isotope.pkgd.min.js"></script>
+    <script src="js/imagesloaded.pkgd.min.js"></script>
+    <script src="js/jquery.magnific-popup.min.js"></script>
+    <script src="js/jquery.meanmenu.js"></script>
+    <script src="js/plugins.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/chatgpt.js"></script>
 </body>
 
 </html>

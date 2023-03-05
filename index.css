@@ -1,0 +1,78 @@
+#chatgpt-main {
+  position: relative;
+  height: calc(100vh - 120px);
+  width: 100%;
+}
+
+#chatgpt-session {
+  max-height: calc(100% - 100px);
+  overflow-y: auto;
+  box-sizing: border-box; /* 可以确保内边距的计算方式 */
+}
+
+#chatgpt-inputcontainer {
+  display: flex;
+  align-items: center;
+  position: absolute;
+  /* 将div固定在页面上 */
+  bottom: 0;
+  /* 将div移到页面底部 */
+  width: 100%;
+  /* 设置div的宽度占满整个屏幕 */
+  padding: 10px;
+  /* 可以添加内边距使内容看起来更好 */
+  background-color: #353740;
+  box-sizing: border-box;
+}
+
+#chatgpt-input {
+  width: calc(100% - 100px);
+  padding: 10px;
+  box-sizing: border-box;
+  border: 0px;
+  border-radius: 2.5px;
+  font-size: 12px;
+  color: white;
+  background-color: #40414F;
+}
+
+#chatgpt-button {
+  width: 80px;
+  height: 75px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 0 5px 5px 0;
+  font-size: 12px;
+  cursor: pointer;
+  margin-left: 10px;
+}
+
+.chatgpt-box {
+  padding: 16px;
+}
+
+.chatgpt-request {
+  background-color: #343541;
+  color: whitesmoke;
+}
+
+.chatgpt-error {
+  background-color: #444654;
+  color: red;
+  padding: 12px;
+}
+
+.chatgpt-response {
+  background-color: #444654;
+  color: whitesmoke;
+  padding: 12px;
+}
+
+.chatgpt-message {
+  margin: 0px;
+}
+
+.chatgpt-message p {
+  margin-bottom: 5px;
+}

@@ -125,7 +125,7 @@ p {
   font-size: 14px;
   font-weight: normal;
   line-height: 24px;
-  color: #555;
+  /* color: #555; */
   margin-bottom: 15px;
 }
 hr{
