@@ -28,52 +28,33 @@
   <link rel="stylesheet" href="css/responsive.css">
   <script src="js/vendor/modernizr-2.8.3.min.js"></script>
   <script>
+    function printMessage(message) {
+      var responseText = document.getElementById("chatgpt-response");
+      responseText.innerHTML = "";
+      responseText.innerHTML += formatMessage(message);
+    }
+    function formatMessage(message){
+      return message.replace(/^\n+/, '').replace(/\n{2,}/g, '\n');
+    }
     async function callCHATGPT() {
-      var responseText1 = document.getElementById("chatgpt-response");
-      responseText1.innerHTML = ""
-      function printMessage(message) {
-        var responseText = document.getElementById("chatgpt-response");
-        var index = 0;
-
-        // 创建一个定时器，每隔一段时间打印一个字符
-        var interval = setInterval(function () {
-          responseText.innerHTML += message[index];
-          index++;
-
-          // 当打印完成时，清除定时器
-          if (index >= message.length) {
-            clearInterval(interval);
-          }
-        },
-          20); // 每隔20毫秒打印一个字符
-      }
       var xhr = new XMLHttpRequest();
       var url = "https://api.openai.com/v1/chat/completions";
       xhr.open("POST", url, true);
       xhr.setRequestHeader("Content-Type", "application/json");
       // 设置Key
-      xhr.setRequestHeader("Authorization", "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");
+      xhr.setRequestHeader("Authorization", "Bearer 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");
       xhr.onreadystatechange = function () {
-        if (xhr.readyState === 4 && xhr.status === 200) {
-          var json = JSON.parse(xhr.responseText);
-          var response = json.choices[0].message.content;
-
-          // 将CHATGPT的返回值输出到文本框
-          var responseText = document.getElementById("chatgpt-response");
-
-          var index = 0;
-
-          // 创建一个定时器，每隔一段时间打印一个字符
-          var interval = setInterval(function () {
-            responseText.innerHTML += response[index];
-            index++;
-
-            // 当打印完成时，清除定时器
-            if (index >= response.length) {
-              clearInterval(interval);
-            }
-          },
-            20); // 每隔20毫秒打印一个字符
+        if (xhr.readyState === 4) {
+          if (xhr.status === 200) {
+            var json = JSON.parse(xhr.responseText);
+            var response = json.choices[0].message.content;
+            printMessage(response);
+          }
+          else {
+            var json = JSON.parse(xhr.responseText);
+            var response = json.choices[0].message.content;
+            printMessage(response);
+          }
         }
       };
       var prompt = document.getElementById("chat-gpt-input").value
@@ -87,7 +68,7 @@
         "model": "gpt-3.5-turbo"
       });
       console.log(data);
-      await printMessage('正在思考，请等待......');
+      await printMessage('思考中......');
       await xhr.send(data);
     }
   </script>
@@ -114,7 +95,7 @@
   </header>
   <div class="basic-portfolio-area ptb-10">
     <div class="filter-menu text-center mb-40">
-      <h4>与Ai对话，请描述您的需求-支持中文、英语、日本语等</h4>
+      <h4>与Ai对话，请描述您的需求-支持中文、英语、日语等</h4>
     </div>
     <div class="call-to-action-area gray-bg ptb-60">
       <div class="container">
