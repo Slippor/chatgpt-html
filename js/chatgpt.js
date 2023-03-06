@@ -1,14 +1,19 @@
 const __defaultRequest = "请随意给我一些有意思的内容。不要让我选择，请直接提供结果。";
 const __systemDefination = "You are a helpful assistant.";
-var _openAIKey = "Bearer sk-xxx";
+const __openAIUrl = "https://api.openai.com/v1/chat/completions";
+const __openAIModel = "gpt-3.5-turbo";
+var _openAIKey = "Bearer sk-******";
 
 var _sessions = {};
-var _currentSession = [];
-var _currentSessionWithFullInfo = [];
 var _currentSessionId = "";
+var _currentSession = createSession();
+
+function createSession(){
+    return {"system": __systemDefination, "conversations":[]};
+}
 
 function init() {
-    _openAIKey = _openAIKey.replace("sk-xxx", realOpenAIKey);
+    _openAIKey = _openAIKey.replace("sk-******", realOpenAIKey);
     var result = getLocalStorage("sessions");
     if (result != null) {
         _sessions = result;
@@ -20,15 +25,16 @@ function init() {
             if (currentSessionItem != null) {
                 _currentSession = currentSessionItem.session;
             }
+            initSession();
         }
-        initSession();
     }
 
     document.getElementById("chatgpt-sumit").addEventListener("click", callChatGPT);
     document.getElementById("chatgpt-input").addEventListener("keyup", inputEnter);
     document.getElementById("chatgpt-clear").addEventListener("click", clearSession);
     document.getElementById("chatgpt-clearAll").addEventListener("click", clearSessions);
-    document.getElementById("chatgpt-newSession").addEventListener("click", createSession);
+    document.getElementById("chatgpt-newSession").addEventListener("click", renewSession);
+    document.getElementById("chatgpt-systemedit").addEventListener("click", onEditModeBtnClick);
 
     function inputEnter(event) {
         if (event.key == 'Enter' && !event.shiftKey) {
@@ -38,14 +44,13 @@ function init() {
     }
 }
 
-function createSession() {
+function renewSession() {
     _currentSessionId = "";
-    _currentSession = [];
-    _currentSessionWithFullInfo = [];
+    _currentSession = createSession();
     initSession();
 }
 
-//从currentSession便利所有属性，如果属性名为“lastSessionId”则跳过，否则调用appendSessionItem方法。
+//从currentSession遍历所有属性，如果属性名为“lastSessionId”则跳过，否则调用appendSessionItem方法。
 function initSessions() {
     document.querySelector(".session-list").innerHTML = "";
     for (let property in _sessions) {
@@ -57,10 +62,10 @@ function initSessions() {
         }
     }
     _currentSessionId = "";
-    _currentSession.length = 0;
-    _currentSessionWithFullInfo.length = 0;
+    _currentSession = createSession();
 }
 
+// 添加会话列表
 function appendSessionItem(sessionId) {
     var li = document.createElement("li");
     li.classList.add("session-item");
@@ -116,30 +121,35 @@ function appendSessionItem(sessionId) {
 function changeSession(sessionId) {
     _currentSessionId = sessionId;
     _currentSession = _sessions[sessionId].session;
-    _currentSessionWithFullInfo = _sessions[sessionId].sessionWithFullInfo;
     _sessions.lastSessionId = _currentSessionId;
-    storeToLocal("sessions", _sessions);
+    updateStoredSessions();
     initSession();
 }
 
+function updateStoredSessions(){
+    storeToLocal("sessions", _sessions);
+}
+
 function initSession() {
+    printSystem(_currentSession.system);
+
     var chatWindow = document.getElementById('chatgpt-session');
     chatWindow.innerHTML = "";
-    if (_currentSession.length == 0) {
-        appendSession("system", __systemDefination);
+    if (_currentSession.conversations == null || _currentSession.conversations.length == 0) {
     }
     else {
         //从session数组中遍历，并将每个成员的role和content调用printMessage输出
-        for (let i = 0; i < _currentSession.length; i++) {
-            const { role, content } = _currentSession[i];
-            if (role === "system") {
-                printStatus(content);
-                continue;
-            }
-            printMessage(content, "chatgpt-" + role);
+        for (let i = 0; i < _currentSession.conversations.length; i++) {
+            const conversion = _currentSession.conversations[i];
+            printMessage(conversion.content, "chatgpt-" + conversion.role);
         }
     }
     setSessionItemActive(_currentSessionId);
+}
+
+function printSystem(message){
+    var systemErea = document.getElementById('chatgpt-systeminput');
+    systemErea.value = message;
 }
 
 function setSessionItemActive(sessionId) {
@@ -151,9 +161,10 @@ function setSessionItemActive(sessionId) {
         }
     }
     let element = document.getElementById(sessionId);
-    element.classList.add("active");
+    if(element != null){
+        element.classList.add("active");
+    }
 }
-
 
 // Define formatMessage function
 function formatMessage(message) {
@@ -173,16 +184,20 @@ function appendPromptToSession(prompt) {
 }
 
 function appendResponseToSession(message, chatId, timeDiff) {
-    appendSession("assistant", message);
+    appendSession("assistant", message, chatId, timeDiff);
+}
+
+function updateSystemToSession(message) {
+    _currentSession.system = message;
+    updateStoredSessions();
 }
 
 function appendSession(role, message, chatId, timeDiff) {
-    _currentSession.push({ "role": role, "content": message });
-    _currentSessionWithFullInfo.push({ "role": role, "content": message, "chatId": chatId, "timeDiff": timeDiff });
+    _currentSession.conversations.push({ "role": role, "content": message, "chatId": chatId, "timeDiff": timeDiff });
     var currentSessionItem = null;
     if (_currentSessionId == "" || _sessions[_currentSessionId] == null) {
         _currentSessionId = generateGUID();
-        currentSessionItem = { "session": _currentSession, "sessionWithFullInfo": _currentSessionWithFullInfo, "titleSetted": false, "title": "New Chat", "message": "等待输入..." };
+        currentSessionItem = { "session": _currentSession, "titleSetted": false, "title": "New Chat", "message": "等待输入..." };
         appendSessionItem(_currentSessionId);
     }
     else {
@@ -199,7 +214,7 @@ function appendSession(role, message, chatId, timeDiff) {
     updateSessionItem(_currentSessionId, currentSessionItem);
     _sessions.lastSessionId = _currentSessionId;
     _sessions[_currentSessionId] = currentSessionItem;
-    storeToLocal("sessions", _sessions);
+    updateStoredSessions();
 }
 
 //生成GUID
@@ -243,13 +258,12 @@ function printStatus(message) {
 }
 // Define callCHATGPT async function
 async function callChatGPT() {
-    const openAIUrl = "https://api.openai.com/v1/chat/completions";
-    const openAIModel = "gpt-3.5-turbo";
+
     updateButtonState(0);
 
     const startTime = performance.now();
     var xhr = new XMLHttpRequest();
-    xhr.open("POST", openAIUrl, true);
+    xhr.open("POST", __openAIUrl, true);
     xhr.setRequestHeader("Content-Type", "application/json");
     // 设置Key
     xhr.setRequestHeader("Authorization", _openAIKey);
@@ -259,16 +273,20 @@ async function callChatGPT() {
             const timeDiff = endTime - startTime; // 计算时间差
             updateButtonState(1);
             var tokenUsed = 0;
-            var json = JSON.parse(xhr.responseText);
             if (xhr.status === 200) {
+                var json = JSON.parse(xhr.responseText);
                 var chatId = json.id;
-                var choice = json.choices[0];
-                var response = choice.message.content;
+                //遍历json.choices
+                for (let i = 0; i < json.choices.length; i++) {
+                    var choice = json.choices[i];
+                    var response = choice.message.content;
+                    appendResponseToSession(response, chatId, timeDiff);
+                    printMessage(response, "chatgpt-assistant");
+                }
                 tokenUsed = json.usage.total_tokens;
-                appendResponseToSession(response, chatId, timeDiff);
-                printMessage(response, "chatgpt-assistant");
             }
-            else {
+            else if (xhr.responseText != '') {
+                var json = JSON.parse(xhr.responseText);
                 var response = json.error.message;
                 printMessage(response, "chatgpt-error");
             }
@@ -285,14 +303,22 @@ async function callChatGPT() {
     printMessage(prompt, "chatgpt-user");
     appendPromptToSession(prompt);
 
+    var currentSession = [];
+    if(_currentSession.system != null){
+        currentSession.push({ "role": "system", "content": _currentSession.system });
+    }
+    for (let i = 0; i < _currentSession.conversations.length; i++) {
+        currentSession.push({ "role": _currentSession.conversations[i].role, "content": _currentSession.conversations[i].content })
+    }
+
     var data = JSON.stringify({
-        "messages": _currentSession,
-        "temperature": 0.9,
+        "messages": currentSession,
+        "temperature": 1.2,
         "top_p": 1,
         "frequency_penalty": 0,
         "presence_penalty": 0,
-        "model": openAIModel,
-        "max_tokens": 2048,
+        "model": __openAIModel,
+        "max_tokens": 3072,
         // "stream": true, 暂时不用Stream，后续调整为后端Server后，再用Stream
     });
     console.log(data);
@@ -321,7 +347,7 @@ function clearSessions() {
             }
         }
         _sessions.lastSessionId = null;
-        storeToLocal("sessions", _sessions);
+        updateStoredSessions();
         initSessions();
         initSession();
     } else {
@@ -333,8 +359,7 @@ function clearSession() {
     //弹出提示确认清除，如果不确认则跳过
     if (confirm("是否确定要清除当前历史对话？")) {
         //执行清除session的操作
-        _currentSession.length = 0;
-        _currentSessionWithFullInfo.length = 0;
+        _currentSession.conversations.length = 0;
         initSession();
     } else {
         //跳过操作
@@ -347,13 +372,12 @@ function deleteSession(sessionId) {
     if (confirm("是否确定要删除该会话？")) {
         //执行删除session的操作
         delete _sessions[sessionId];
-        storeToLocal("sessions", _sessions);
         deleteSessionItem(sessionId);
+        updateStoredSessions();
         //如果当前Session为要删除的Session，则创建新Session
         if (_currentSessionId == sessionId) {
             _currentSessionId = "";
-            _currentSession.length = 0;
-            _currentSessionWithFullInfo.length = 0;
+            _currentSession.conversations.length = 0;
             initSession();
         }
     } else {
@@ -418,3 +442,24 @@ function updateSessionItem(id, sessionItem) {
 window.onload = function () {
     init();
 };
+
+// 定义按钮点击事件处理函数
+function onEditModeBtnClick() {
+    const inputTextarea = document.getElementById('chatgpt-systeminput');
+    const editModeBtn = document.getElementById('chatgpt-systemedit');
+    if (inputTextarea.readOnly) {
+        inputTextarea.removeAttribute('readonly');
+        inputTextarea.focus();
+        editModeBtn.classList.remove('editicon');
+        editModeBtn.classList.add('saveicon');
+        editModeBtn.title = '保存修改';
+    } else {
+        //保存System配置
+        updateSystemToSession(inputTextarea.value);
+
+        inputTextarea.setAttribute('readonly', '');
+        editModeBtn.classList.add('editicon');
+        editModeBtn.classList.remove('saveicon');
+        editModeBtn.title = '编辑设定';
+    }
+}

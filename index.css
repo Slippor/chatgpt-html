@@ -1,6 +1,13 @@
+body {
+  -webkit-user-select: auto; /* Safari */
+  -moz-user-select: auto; /* Firefox */
+  -ms-user-select: auto; /* Internet Explorer/Edge */
+  user-select: auto; /* 其他浏览器 */
+}
+
 #chatgpt-main {
   position: relative;
-  height: calc(100vh - 80px);
+  height: calc(100vh - 190px);
   width: 100%;
 }
 
@@ -18,7 +25,7 @@
   /* 可以确保内边距的计算方式 */
 }
 
-#chatgpt-inputcontainer {
+.chatgpt-inputcontainer {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -34,7 +41,26 @@
   box-sizing: border-box;
 }
 
+/* 固定在区域上方 */
+#chatgpt-systemcontainer{
+  top: 0;
+  position: relative;
+}
+
 #chatgpt-input {
+  width: calc(100% - 100px);
+  padding: 10px;
+  margin: 5px;
+  box-sizing: border-box;
+  border: 0px;
+  border-radius: 2.5px;
+  font-size: 14px;
+  color: whitesmoke;
+  background-color: #40414F;
+  height: 80px;
+}
+
+#chatgpt-systeminput {
   width: calc(100% - 100px);
   padding: 10px;
   margin: 5px;
@@ -100,10 +126,6 @@
   margin: 0px;
 }
 
-.chatgpt-message p {
-  margin-bottom: 5px;
-}
-
 .icon {
   width: 28px;
   height: auto;
@@ -121,6 +143,10 @@
   color: whitesmoke;
   overflow-y: auto;
   height: calc(100vh - 80px);
+}
+
+.session-list{
+  padding-inline-start: 0;
 }
 
 .session-item {
@@ -160,9 +186,20 @@
   width: 15px;
   height: 15px;
   display: inline-block;
-  background-image: url("data:image/svg+xml;charset=utf-8,<svg t='1678034896798' class='icon' viewBox='0 0 1024 1024' version='1.1' xmlns='http://www.w3.org/2000/svg' p-id='2482' fill='whitesmoke'><path d='M341.312 85.312l64-85.312h213.376l64 85.312H960v85.376H64V85.312h277.312zM170.688 256h682.624v768H170.688V256z m298.624 170.688H384v426.624h85.312V426.688z m170.688 0H554.688v426.624H640V426.688z' p-id='2483'></path></svg>");
+  background-image: url("data:image/svg+xml;charset=utf-8,<svg t='1678034896798' viewBox='0 0 1024 1024' version='1.1' xmlns='http://www.w3.org/2000/svg' p-id='2482' fill='whitesmoke'><path d='M341.312 85.312l64-85.312h213.376l64 85.312H960v85.376H64V85.312h277.312zM170.688 256h682.624v768H170.688V256z m298.624 170.688H384v426.624h85.312V426.688z m170.688 0H554.688v426.624H640V426.688z' p-id='2483'></path></svg>");
 }
 
+.editicon {
+  width: 28px;
+  height: 28px;
+  background-image: url("data:image/svg+xml;charset=utf-8,<svg t='1678094325195' viewBox='0 0 1024 1024' version='1.1' xmlns='http://www.w3.org/2000/svg' p-id='2753' fill='whitesmoke'><path d='M880 836H144c-17.7 0-32 14.3-32 32v36c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-36c0-17.7-14.3-32-32-32zM257.7 752c2 0 4-0.2 6-0.5L431.9 722c2-0.4 3.9-1.3 5.3-2.8l423.9-423.9c3.9-3.9 3.9-10.2 0-14.1L694.9 114.9c-1.9-1.9-4.4-2.9-7.1-2.9s-5.2 1-7.1 2.9L256.8 538.8c-1.5 1.5-2.4 3.3-2.8 5.3l-29.5 168.2c-1.9 11.1 1.5 21.9 9.4 29.8 6.6 6.4 14.9 9.9 23.8 9.9z' p-id='2754'></path></svg>");
+}
+
+.saveicon {
+  width: 28px;
+  height: 28px;
+  background-image: url("data:image/svg+xml;charset=utf-8,<svg t='1678094530828' viewBox='0 0 1024 1024' version='1.1' xmlns='http://www.w3.org/2000/svg' p-id='3725' fill='whitesmoke'><path d='M426.666667 725.333333h170.666666v170.666667h-170.666666z' p-id='3726'></path><path d='M858.453333 371.626667l-206.08-206.08A128 128 0 0 0 561.92 128H426.666667v256h213.333333a42.666667 42.666667 0 0 1 0 85.333333H384a42.666667 42.666667 0 0 1-42.666667-42.666666V128H256a128 128 0 0 0-128 128v512a128 128 0 0 0 128 128h85.333333v-170.666667a85.333333 85.333333 0 0 1 85.333334-85.333333h170.666666a85.333333 85.333333 0 0 1 85.333334 85.333333v170.666667h85.333333a128 128 0 0 0 128-128v-305.92a128 128 0 0 0-37.546667-90.453333z' p-id='3727'></path></svg>");
+}
 
 .itemContainer{
   width: calc(100% - 20px);

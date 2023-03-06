@@ -1,0 +1,11 @@
+.chatgpt-message p {
+    margin-bottom: 5px;
+}
+
+.chatgpt-message ol {
+    padding-inline-start: 20px;
+}
+
+.chatgpt-message li {
+    list-style: decimal;
+}
