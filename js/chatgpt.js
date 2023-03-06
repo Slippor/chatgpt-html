@@ -57,8 +57,8 @@ function initSessions() {
         if (property === "lastSessionId") {
             continue;
         } else {
-            appendSessionItem(property);
-            updateSessionItem(property, _sessions[property]);
+            appendSessionListItem(property);
+            updateSessionListItem(property, _sessions[property]);
         }
     }
     _currentSessionId = "";
@@ -66,7 +66,7 @@ function initSessions() {
 }
 
 // 添加会话列表
-function appendSessionItem(sessionId) {
+function appendSessionListItem(sessionId) {
     var li = document.createElement("li");
     li.classList.add("session-item");
     li.id = sessionId;
@@ -141,7 +141,7 @@ function initSession() {
         //从session数组中遍历，并将每个成员的role和content调用printMessage输出
         for (let i = 0; i < _currentSession.conversations.length; i++) {
             const conversion = _currentSession.conversations[i];
-            printMessage(conversion.content, "chatgpt-" + conversion.role);
+            printMessage(conversion.content, "chatgpt-" + conversion.role, conversion.chatId, conversion.filtered);
         }
     }
     setSessionItemActive(_currentSessionId);
@@ -179,12 +179,12 @@ function showStatus(timeDiff, tokenUsed) {
     printStatus(`请求用时：${timeDiff} 秒；` + `使用 Token：${tokenUsed}；` + `花费：${cost}美分`);
 }
 
-function appendPromptToSession(prompt) {
-    appendSession("user", prompt, generateGUID(), 0);
+function appendPromptToSession(prompt, chatId, sessionId) {
+    return appendSession("user", prompt, chatId, 0, sessionId);
 }
 
-function appendResponseToSession(message, chatId, timeDiff) {
-    appendSession("assistant", message, chatId, timeDiff);
+function appendResponseToSession(message, chatId, timeDiff, sessionId) {
+    return appendSession("assistant", message, chatId, timeDiff, sessionId);
 }
 
 function updateSystemToSession(message) {
@@ -192,29 +192,44 @@ function updateSystemToSession(message) {
     updateStoredSessions();
 }
 
-function appendSession(role, message, chatId, timeDiff) {
-    _currentSession.conversations.push({ "role": role, "content": message, "chatId": chatId, "timeDiff": timeDiff });
-    var currentSessionItem = null;
-    if (_currentSessionId == "" || _sessions[_currentSessionId] == null) {
-        _currentSessionId = generateGUID();
-        currentSessionItem = { "session": _currentSession, "titleSetted": false, "title": "New Chat", "message": "等待输入..." };
-        appendSessionItem(_currentSessionId);
+function appendSession(role, message, chatId, timeDiff, sessionId) {
+    var session = null;
+    if (sessionId == _currentSessionId) {
+        session = _currentSession;
+    } else {
+        session = _sessions[sessionId].session;
+    }
+    session.conversations.push({ "role": role, "content": message, "chatId": chatId, "timeDiff": timeDiff, "filtered": false });
+
+    var sessionItem = null;
+    if (sessionId == "" || _sessions[sessionId] == null) {
+        var newID = generateGUID();
+        if (_currentSessionId == sessionId) {
+            _currentSessionId = newID;
+        }
+        sessionId = newID;
+        sessionItem = { "session": session, "titleSetted": false, "title": "New Chat", "message": "等待输入..." };
+        appendSessionListItem(_currentSessionId);
     }
     else {
-        currentSessionItem = _sessions[_currentSessionId];
+        sessionItem = _sessions[sessionId];
     }
     if (role != "system") {
-        if (!currentSessionItem.titleSetted) {
-            currentSessionItem.title = message;
-            currentSessionItem.titleSetted = true;
+        if (!sessionItem.titleSetted) {
+            sessionItem.title = message;
+            sessionItem.titleSetted = true;
         }
     }
-    currentSessionItem.preview = message ? message : "等待输入...";
-    currentSessionItem.time = getNowDateTimeString();
-    updateSessionItem(_currentSessionId, currentSessionItem);
-    _sessions.lastSessionId = _currentSessionId;
-    _sessions[_currentSessionId] = currentSessionItem;
+    sessionItem.preview = message ? message : "等待输入...";
+    sessionItem.time = getNowDateTimeString();
+    updateSessionListItem(sessionId, sessionItem);
+    if (sessionId == _currentSessionId) {
+        _sessions.lastSessionId = _currentSessionId;
+    }
+    _sessions[sessionId] = sessionItem;
     updateStoredSessions();
+    //sessionId可能会更新
+    return sessionId;
 }
 
 //生成GUID
@@ -238,28 +253,129 @@ function getLocalStorage(key) {
 }
 
 // Define printMessage function
-function printMessage(message, className) {
+function printMessage(message, className, messageId, filtered) {
     var containerDiv = document.createElement('div');
     containerDiv.classList.add(className);
     containerDiv.classList.add("chatgpt-box");
+
+    //只有鼠标挪到containerDiv上，toolbar才会显示
+    var toolbar = document.createElement('ul');
+    toolbar.classList.add("chatgpt-toolbar");
+
+    var li =  document.createElement('li');
+    //在containerDiv中添加一个Checkbox，class为message-check
+    let newCheckbox = document.createElement("input");
+    newCheckbox.type = "checkbox";
+    newCheckbox.checked = !filtered;
+    newCheckbox.value = messageId;
+    newCheckbox.className = "message-check";
+    //当newCheckbox的选中状态改变时，执行方法messageFilter，传入newCheckBox的value和选中状态；
+    newCheckbox.addEventListener('change', function() {
+        filterMessage(this.value, this.checked);
+      });
+    li.appendChild(newCheckbox);
+    toolbar.appendChild(li);
+
+    var li =  document.createElement('li');
+    var deleteButton = document.createElement("button");
+    deleteButton.classList.add('chatgpt-button', 'deleteicon');
+    deleteButton.setAttribute('autocomplete', 'off');
+    deleteButton.value = messageId;
+    //为deleteButton添加click事件响应deleteSession，并把deleteButton的value传给该函数
+    deleteButton.addEventListener("click", function () {
+        deleteMessage(this.value);
+    });
+    li.appendChild(deleteButton);
+    toolbar.appendChild(li);
+
+    var li =  document.createElement('li');
+    var sendButton = document.createElement("button");
+    sendButton.classList.add('chatgpt-button', 'sendicon');
+    sendButton.setAttribute('autocomplete', 'off');
+    sendButton.value = messageId;
+    //为deleteButton添加click事件响应deleteSession，并把deleteButton的value传给该函数
+    sendButton.addEventListener("click", function () {
+        sendMessage(this.value);
+    });
+    li.appendChild(sendButton);
+    toolbar.appendChild(li);
+    containerDiv.appendChild(toolbar);
+
     var messageDiv = document.createElement('div');
     messageDiv.className = "chatgpt-message";
     messageDiv.innerHTML = formatMessage(message);
     containerDiv.appendChild(messageDiv);
+    
     var chatWindow = document.getElementById('chatgpt-session');
     chatWindow.appendChild(containerDiv);
     //自动滚动到chatWindow的最下方
     chatWindow.scrollTop = chatWindow.scrollHeight;
+
+    // // Hide the toolbar initially
+    // toolbar.style.display = "none";
+    // containerDiv.addEventListener("mouseover", function() {
+    //     toolbar.style.display = "block";
+    //   });
+      
+    //   containerDiv.addEventListener("mouseout", function() {
+    //     toolbar.style.display = "none";
+    //   });
+}
+
+//对信息做过滤
+function filterMessage(messageId, checked) {
+    //遍历_currentSession下的conversions
+    for (let i = 0; i < _currentSession.conversations.length; i++) {
+        const conversion = _currentSession.conversations[i];
+        if(conversion.chatId == messageId){
+            //从_currentSession.conversations中移除conversion
+            conversion.filtered = !checked;
+            break;
+        }
+    }
+}
+
+//对信息做过滤
+function deleteMessage(messageId) {
+    //遍历_currentSession下的conversions
+    for (let i = 0; i < _currentSession.conversations.length; i++) {
+        const conversion = _currentSession.conversations[i];
+        if (conversion.chatId == messageId) {
+            //从_currentSession.conversations中移除conversion
+            _currentSession.conversations.splice(i, 1);
+            break;
+        }
+    }
+    updateStoredSessions();
+    initSession();
+}
+
+//对信息做过滤
+function sendMessage(messageId) {
+    //遍历_currentSession下的conversions
+    for (let i = 0; i < _currentSession.conversations.length; i++) {
+        const conversion = _currentSession.conversations[i];
+        if (conversion.chatId == messageId) {
+            var input = document.getElementById("chatgpt-input");
+            input.value = conversion.content;
+            break;
+        }
+    }
+    updateStoredSessions();
+    initSession();
 }
 
 function printStatus(message) {
     var statusLabel = document.getElementById('chatgpt-status');
     statusLabel.innerText = message;
 }
+
 // Define callCHATGPT async function
 async function callChatGPT() {
 
     updateButtonState(0);
+    //记录当前SessionId，避免切换Session后记录串了。
+    var sessionId = _currentSessionId;
 
     const startTime = performance.now();
     var xhr = new XMLHttpRequest();
@@ -280,39 +396,38 @@ async function callChatGPT() {
                 for (let i = 0; i < json.choices.length; i++) {
                     var choice = json.choices[i];
                     var response = choice.message.content;
-                    appendResponseToSession(response, chatId, timeDiff);
-                    printMessage(response, "chatgpt-assistant");
+                    sessionId  = appendResponseToSession(response, chatId, timeDiff, sessionId);
+                    if(sessionId== _currentSessionId){
+                        printMessage(response, "chatgpt-assistant", chatId, false);
+                    }
                 }
                 tokenUsed = json.usage.total_tokens;
             }
             else if (xhr.responseText != '') {
                 var json = JSON.parse(xhr.responseText);
                 var response = json.error.message;
-                printMessage(response, "chatgpt-error");
+                if (sessionId == _currentSessionId) {
+                    printMessage(response, "chatgpt-error", "", true);
+                }
             }
             showStatus(timeDiff, tokenUsed);
         }
     };
+    //将问题上屏。
     var input = document.getElementById("chatgpt-input")
     var prompt = input.value;
     if (prompt == "") {
         prompt = __defaultRequest;
     }
     input.value = "";
+    var promptId = generateGUID();
+    printMessage(prompt, "chatgpt-user", promptId, false);
+    sessionId = appendPromptToSession(prompt, promptId, sessionId);
 
-    printMessage(prompt, "chatgpt-user");
-    appendPromptToSession(prompt);
-
-    var currentSession = [];
-    if(_currentSession.system != null){
-        currentSession.push({ "role": "system", "content": _currentSession.system });
-    }
-    for (let i = 0; i < _currentSession.conversations.length; i++) {
-        currentSession.push({ "role": _currentSession.conversations[i].role, "content": _currentSession.conversations[i].content })
-    }
+    var currentConversation = generateConversations();
 
     var data = JSON.stringify({
-        "messages": currentSession,
+        "messages": currentConversation,
         "temperature": 1.2,
         "top_p": 1,
         "frequency_penalty": 0,
@@ -324,6 +439,21 @@ async function callChatGPT() {
     console.log(data);
     await printStatus('思考中......');
     await xhr.send(data);
+}
+
+function generateConversations() {
+    var conversations = [];
+    for (let i = 0; i < _currentSession.conversations.length; i++) {
+        var conversation = _currentSession.conversations[i];
+        if(!conversation.filtered){
+            conversations.push({ "role": conversation.role, "content": conversation.content });
+        }
+    }
+    //将System添加到最后，有助于始终绑定人设。
+    if (_currentSession.system != null) {
+        conversations.push({ "role": "system", "content": _currentSession.system });
+    }
+    return conversations;
 }
 
 //更新按钮状态，确保按钮不会被重复按下
@@ -407,8 +537,9 @@ function getNowDateTimeString() {
     return formattedString;
 }
 
-function updateSessionItem(id, sessionItem) {
-    setSessionItem(id, sessionItem.title, sessionItem.preview, sessionItem.time);
+//更新Session列表信息
+function updateSessionListItem(sessionId, sessionListItem) {
+    setSessionItem(sessionId, sessionListItem.title, sessionListItem.preview, sessionListItem.time);
     function setSessionItem(id, title, preview, time) {
         //对Id为id的li元素下的内容赋值，将该li下class为"title"的div元素内容设为title，将该li下class为"preview"的div元素内容设为preview，且内容长度过长时自动截断。
         const li = document.getElementById(id);

@@ -27,26 +27,16 @@
     <div class="page-loader">
         <div class="loader">Loading...</div>
     </div>
-    <header id="sticky-header">
-        <div class="header-area">
-            <div class="container sm-100">
-                <div class="row">
-                    <div class="col-md-3 col-sm-2">
-                        <div class="logo text-upper">
-                            <h4>
-                                <a href="index.html">OpenAi - ChatGPT</a>
-                            </h4>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </header>
     <div class="basic-portfolio-area">
         <div>
             <div class="container">
                 <div class="row">
                     <div class="col-md-2 col-sm-0 col-xs-0 sidebar">
+                        <div class="logo text-upper">
+                            <h4>
+                                <a href="index.html">OpenAi - ChatGPT</a>
+                            </h4>
+                        </div>
                         <!-- 侧边栏列表，显示会话列表 -->
                         <button id="chatgpt-newSession">添加会话</button>
                         <div>
@@ -73,14 +63,8 @@
                             <div class="call-to-action-area chatgpt-inputcontainer" id="chatgpt-inputcontainer">
                                 <textarea class="chatgpt-input" id="chatgpt-input" placeholder="输入需求"
                                     rows="3" resize="none"></textarea>
-                                <button id="chatgpt-sumit" class="chatgpt-button" title="发送请求" autocomplete="off"
+                                <button id="chatgpt-sumit" class="chatgpt-button sendicon" title="发送请求" autocomplete="off"
                                     href="#">
-                                    <svg t="1678029171750" class="icon" viewBox="0 0 1024 1024" version="1.1"
-                                        xmlns="http://www.w3.org/2000/svg" p-id="2686" width="200" height="200">
-                                        <path
-                                            d="M896 167.253333l-256 714.666667a21.333333 21.333333 0 0 1-20.053333 14.08h-6.826667a21.76 21.76 0 0 1-19.626667-12.373333l-100.693333-213.333334a85.333333 85.333333 0 0 1 14.506667-94.293333l128-139.946667a21.333333 21.333333 0 0 0 0-29.44l-16.213334-16.213333a21.333333 21.333333 0 0 0-29.44 0l-139.946666 128a85.333333 85.333333 0 0 1-94.293334 14.506667l-213.333333-100.693334A21.76 21.76 0 0 1 128 412.586667v-6.826667A21.333333 21.333333 0 0 1 142.08 384l714.666667-256a21.333333 21.333333 0 0 1 22.186666 4.693333l11.093334 11.093334a21.333333 21.333333 0 0 1 5.973333 23.466666z"
-                                            p-id="2687"></path>
-                                    </svg>
                                     <span class="spinner-border spinner-border-sm d-none" role="status"
                                         aria-hidden="true"></span>
                                 </button>
