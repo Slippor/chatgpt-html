@@ -39,24 +39,47 @@
             </div>
         </div>
     </header>
-    <div class="basic-portfolio-area ptb-10">
-        <div class="gray-bg ptb-10">
+    <div class="basic-portfolio-area">
+        <div>
             <div class="container">
                 <div class="row">
-                    <div class="col-md-10 col-sm-10 col-xs-12">
+                    <div class="col-md-2 col-sm-0 col-xs-0 sidebar">
+                        <!-- 侧边栏列表，显示会话列表 -->
+                        <button id="chatgpt-newSession">添加会话</button>
+                        <div>
+                            <ul class="session-list">
+                            </ul>
+                        </div>
+                        <button id="chatgpt-clearAll">清空所有</button>
+                    </div>
+                    <div class="col-md-10 col-sm-12 col-xs-12 main">
                         <div>
                             <div id="chatgpt-main">
-                                <label id="chatgpt-status"></label>
+                                <div id="chatgpt-status"></div>
                                 <div id="chatgpt-session">
                                 </div>
                             </div>
                             <div class="call-to-action-area" id="chatgpt-inputcontainer">
                                 <textarea class="form-control" id="chatgpt-input" placeholder="输入需求" rows="3"
                                     resize="none"></textarea>
-                                <button id="chatgpt-button" autocomplete="off" class="btn" href="#">
-                                    Click to<br>Answer
+                                <button id="chatgpt-sumit" class="chatgpt-button" title="发送请求" autocomplete="off" href="#">
+                                    <svg t="1678029171750" class="icon" viewBox="0 0 1024 1024" version="1.1"
+                                        xmlns="http://www.w3.org/2000/svg" p-id="2686" width="200" height="200">
+                                        <path
+                                            d="M896 167.253333l-256 714.666667a21.333333 21.333333 0 0 1-20.053333 14.08h-6.826667a21.76 21.76 0 0 1-19.626667-12.373333l-100.693333-213.333334a85.333333 85.333333 0 0 1 14.506667-94.293333l128-139.946667a21.333333 21.333333 0 0 0 0-29.44l-16.213334-16.213333a21.333333 21.333333 0 0 0-29.44 0l-139.946666 128a85.333333 85.333333 0 0 1-94.293334 14.506667l-213.333333-100.693334A21.76 21.76 0 0 1 128 412.586667v-6.826667A21.333333 21.333333 0 0 1 142.08 384l714.666667-256a21.333333 21.333333 0 0 1 22.186666 4.693333l11.093334 11.093334a21.333333 21.333333 0 0 1 5.973333 23.466666z"
+                                            p-id="2687"></path>
+                                    </svg>
                                     <span class="spinner-border spinner-border-sm d-none" role="status"
                                         aria-hidden="true"></span>
+                                </button>
+                                <button id="chatgpt-clear" class="chatgpt-button" title="清空当前对话" autocomplete="off" class="btn"
+                                    href="#">
+                                    <svg t="1678029235750" class="icon" viewBox="0 0 1024 1024" version="1.1"
+                                        xmlns="http://www.w3.org/2000/svg" p-id="3679" width="200" height="200">
+                                        <path
+                                            d="M824.4 438.8c0-37.6-30-67.6-67.6-67.6l-135.2 0L621.6 104.8c0-37.6-30-67.6-67.6-67.6-37.6 0-67.6 30-67.6 67.6l0 266.4L358.8 371.2c-37.6 0-67.6 30-67.6 67.6l0 67.6L828 506.4l0-67.6L824.4 438.8 824.4 438.8zM824.4 574c-11.2 0-536.8 0-536.8 0S250 972 88.4 972L280 972c75.2 0 108.8-217.6 108.8-217.6s33.6 195.2 3.6 217.6l105.2 0c-3.6 0 0 0 11.2 0 52.4-7.6 60-247.6 60-247.6s52.4 244 45.2 244c-26.4 0-78.8 0-105.2 0l0 0 154 0c-7.6 0 0 0 11.2 0 48.8-11.2 52.4-187.6 52.4-187.6s22.4 187.6 15.2 187.6c-18.8 0-48.8 0-67.6 0l-3.6 0 90 0C895.6 972 903.2 784.4 824.4 574L824.4 574z"
+                                            p-id="3680"></path>
+                                    </svg>
                                 </button>
                                 <div style="height: 0px;"></div>
                             </div>
@@ -74,6 +97,7 @@
     <script src="js/jquery.meanmenu.js"></script>
     <script src="js/plugins.js"></script>
     <script src="js/main.js"></script>
+    <script src="js/sensitive.js"></script>
     <script src="js/chatgpt.js"></script>
 </body>
 

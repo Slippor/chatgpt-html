@@ -1,17 +1,26 @@
 #chatgpt-main {
   position: relative;
-  height: calc(100vh - 120px);
+  height: calc(100vh - 80px);
   width: 100%;
 }
 
+#chatgpt-status {
+  width: 100%;
+  background-color: #202123;
+  color: whitesmoke;
+  padding: 5px;
+}
+
 #chatgpt-session {
-  max-height: calc(100% - 100px);
+  max-height: calc(100% - 140px);
   overflow-y: auto;
-  box-sizing: border-box; /* 可以确保内边距的计算方式 */
+  box-sizing: border-box;
+  /* 可以确保内边距的计算方式 */
 }
 
 #chatgpt-inputcontainer {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   position: absolute;
   /* 将div固定在页面上 */
@@ -21,40 +30,58 @@
   /* 设置div的宽度占满整个屏幕 */
   padding: 10px;
   /* 可以添加内边距使内容看起来更好 */
-  background-color: #353740;
+  background-color: #343541;
   box-sizing: border-box;
 }
 
 #chatgpt-input {
   width: calc(100% - 100px);
   padding: 10px;
+  margin: 5px;
   box-sizing: border-box;
   border: 0px;
   border-radius: 2.5px;
-  font-size: 12px;
-  color: white;
+  font-size: 14px;
+  color: whitesmoke;
   background-color: #40414F;
+  height: 80px;
 }
 
-#chatgpt-button {
-  width: 80px;
-  height: 75px;
-  background-color: #4CAF50;
-  color: white;
-  border: none;
-  border-radius: 0 5px 5px 0;
-  font-size: 12px;
-  cursor: pointer;
-  margin-left: 10px;
+.chatgpt-button {
+  color: #ffffff;
+  background-color: transparent;
+  /* border-color: #246AA2; */
+  display: inline-block;
+  font-weight: 400;
+  text-align: center;
+  vertical-align: middle;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  border: 1px solid transparent;
+  padding: .375rem .75rem;
+  font-size: 1rem;
+  line-height: 1.5;
+  border-radius: .25rem;
+  transition: color .15s ease-in-out, background-color .15s ease-in-out, border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+}
+
+#chatgpt-sumit {
+  /* background-color: green; */
+}
+
+#chatgpt-clear {
+  /* background-color: gray; */
 }
 
 .chatgpt-box {
   padding: 16px;
 }
 
-.chatgpt-request {
+.chatgpt-user {
   background-color: #343541;
-  color: whitesmoke;
+  color: white;
 }
 
 .chatgpt-error {
@@ -63,7 +90,7 @@
   padding: 12px;
 }
 
-.chatgpt-response {
+.chatgpt-assistant {
   background-color: #444654;
   color: whitesmoke;
   padding: 12px;
@@ -75,4 +102,100 @@
 
 .chatgpt-message p {
   margin-bottom: 5px;
+}
+
+.icon {
+  width: 28px;
+  height: auto;
+  fill: whitesmoke;
+  /* color: whitesmoke; */
+}
+
+.main {
+  background-color: #202123;
+  padding: 0px;
+}
+
+.sidebar {
+  background-color: #202123;
+  color: whitesmoke;
+  overflow-y: auto;
+  height: calc(100vh - 80px);
+}
+
+.session-item {
+  padding: 5px;
+  display: flex;
+  border-bottom: 1px solid whitesmoke;
+}
+
+.preview, .time{
+ font-size: x-small; 
+}
+
+.session-item .title{
+  font-size: medium;
+  cursor: pointer;
+}
+
+.containter {
+  width: 100%;
+  margin: 0px;
+}
+
+/* 美化ScrollBar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background-color: #343541;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #565869;
+}
+
+.deleteicon {
+  width: 15px;
+  height: 15px;
+  display: inline-block;
+  background-image: url("data:image/svg+xml;charset=utf-8,<svg t='1678034896798' class='icon' viewBox='0 0 1024 1024' version='1.1' xmlns='http://www.w3.org/2000/svg' p-id='2482' fill='whitesmoke'><path d='M341.312 85.312l64-85.312h213.376l64 85.312H960v85.376H64V85.312h277.312zM170.688 256h682.624v768H170.688V256z m298.624 170.688H384v426.624h85.312V426.688z m170.688 0H554.688v426.624H640V426.688z' p-id='2483'></path></svg>");
+}
+
+
+.itemContainer{
+  width: calc(100% - 20px);
+}
+
+#chatgpt-newSession{
+  /* 将div固定在页面上 */
+  background-color: transparent;
+  color: whitesmoke;
+  border: 0px;
+  height: 25px;
+  width: calc(100% - 20px);
+  border: none;
+  border-bottom: 1px solid whitesmoke;
+  text-align: center;
+  display: inline-block;
+}
+
+#chatgpt-clearAll{
+  position: absolute;
+  /* 将div固定在页面上 */
+  bottom: 0;
+  background-color: transparent;
+  color: whitesmoke;
+  border: 0px;
+  height: 25px;
+  width: calc(100% - 20px);
+  border: none;
+  border-top: 1px solid whitesmoke;
+  text-align: center;
+  display: inline-block;
+}
+
+li.active{
+  background-color: #555;
 }
