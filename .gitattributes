@@ -1,1 +1,1 @@
-sensitive.js filter=filter.key.clean
+*.js filter=filter.key.clean
