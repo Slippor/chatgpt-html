@@ -1,1 +1,1 @@
-const realOpenAIKey = "sk-111111";
+const realOpenAIKey = "sk-11111111";
