@@ -1,5 +1,6 @@
 const defaultRequest = "一首古诗";
 const systemDefination = "You are a helpful assistant.";
+const openAIKey = "Bearer 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";
 const session = [];
 
 function init(){
@@ -51,7 +52,6 @@ function printStatus(message) {
 // Define callCHATGPT async function
 async function callChatGPT() {
     const openAIUrl = "https://api.openai.com/v1/chat/completions";
-    const openAIKey = "Bearer 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";
     const openAIModel = "gpt-3.5-turbo";
     updateButtonState(0);
 
