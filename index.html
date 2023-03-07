@@ -29,53 +29,89 @@
     </div>
     <div class="basic-portfolio-area">
         <div>
-            <div class="container">
+            <div class="container-fluid">
                 <div class="row">
-                    <div class="col-md-2 col-sm-0 col-xs-0 sidebar">
-                        <div class="logo text-upper">
-                            <h4>
-                                <a href="index.html">OpenAi - ChatGPT</a>
-                            </h4>
+                    <div class="col-lg-2 col-md-3 col-sm-4 col-xs-6 sidebar" id="sidebar">
+                        <div class="logo text-upper chatgpt-panel">
+                            <div>
+                                <h4>
+                                    <a href="index.html">ChatGPT</a>
+                                </h4>
+                            </div>
+                        </div>
+                        <div id="sesion-toolbar">
+                            <button class="chatgpt-button addicon smallicon" title="添加会话"
+                                id="chatgpt-newSession"></button>
+                            <button class="chatgpt-button clearicon smallicon" title="清空所有"
+                                id="chatgpt-clearAll"></button>
+                            <button class="chatgpt-button importicon smallicon" title="导入会话"
+                                id="chatgpt-importSessions"></button>
+                            <button class="chatgpt-button exporticon smallicon" title="导出所有会话"
+                                id="chatgpt-exportSessions"></button>
                         </div>
                         <!-- 侧边栏列表，显示会话列表 -->
-                        <button id="chatgpt-newSession">添加会话</button>
                         <div>
                             <ul class="session-list">
                             </ul>
                         </div>
-                        <button id="chatgpt-clearAll">清空所有</button>
+                        <div id="sidebar-bottom">
+                            <div id="menubuttonholder" class="togglebuttonholder">
+                                <!--指示按钮-->
+                                <button class="chatgpt-button menuicon mediumicon centered" id="toggle-sidebar-btn">
+                                </button>
+                            </div>
+                        </div>
                     </div>
-                    <div class="col-md-10 col-sm-12 col-xs-12 main">
+                    <div class="col-lg-10 col-md-9 col-sm-12 col-xs-12 main" id="maincontent">
                         <div>
                             <div class="call-to-action-area chatgpt-inputcontainer" id="chatgpt-systemcontainer">
-                                <textarea class="chatgpt-input" id="chatgpt-systeminput" placeholder="输入设定"
-                                    rows="2" resize="none" readonly></textarea>
-                                <button id="chatgpt-systemedit" class="chatgpt-button editicon" title="编辑设定"
+                                <textarea class="chatgpt-input" id="chatgpt-systeminput" placeholder="输入设定" rows="2"
+                                    resize="none" readonly></textarea>
+                                <button id="chatgpt-systemedit" class="chatgpt-button editicon mediumicon" title="编辑设定"
                                     autocomplete="off" href="#">
+                                </button>
+                                <button id="chatgpt-exportsession" class="chatgpt-button exporticon mediumicon"
+                                    title="导出为Markdown" autocomplete="off" href="#">
                                 </button>
                                 <div style="height: 0px;"></div>
                             </div>
                             <div id="chatgpt-main">
-                                <div id="chatgpt-status"></div>
-                                <div id="chatgpt-session">
+                                <div class="chatgpt-panel">
+                                    <div id="chatgpt-filter"><input type="checkbox" checked="true" id="chatgpt-checkmessages"/></div>
+                                    <div id="chatgpt-status"></div>
+
+                                    <div id="chatgpt-session-toolbar">
+                                        <!-- 一个下拉选框，包含选项1、2、3，默认选中1 -->
+                                        <select id="chatgpt-responsenumber" title="回答个数">
+                                            <option selected value="1">1</option>
+                                            <option value="2">2</option>
+                                            <option value="3">3</option>
+                                        </select>
+                                    </div>
                                 </div>
+                                <div id="chatgpt-session">
+                                    <button id="chatgpt-scrollbtntobottom" class="chatgpt-button tobottomicon mediumicon" title="到最下方"
+                                    autocomplete="off" href="#"></button>
+                                    <button id="chatgpt-scrollbtn" class="chatgpt-button totopicon mediumicon" title="到最上方"
+                                    autocomplete="off" href="#"></button>
+                                </div>
+                                <div class="bottom"></div>
                             </div>
                             <div class="call-to-action-area chatgpt-inputcontainer" id="chatgpt-inputcontainer">
-                                <textarea class="chatgpt-input" id="chatgpt-input" placeholder="输入需求"
-                                    rows="3" resize="none"></textarea>
-                                <button id="chatgpt-sumit" class="chatgpt-button sendicon" title="发送请求" autocomplete="off"
-                                    href="#">
-                                    <span class="spinner-border spinner-border-sm d-none" role="status"
-                                        aria-hidden="true"></span>
+                                <div id="menubuttonholder-main" class="togglebuttonholder d-none">
+                                    <button class="chatgpt-button menuicon mediumicon centered" id="toggle-main-btn">
+                                    </button>
+                                </div>
+                                <textarea class="chatgpt-input" id="chatgpt-input" placeholder="输入需求" rows="3"
+                                    resize="none"></textarea>
+                                <button id="chatgpt-sumit" class="chatgpt-button sendicon mediumicon" title="发送请求"
+                                    autocomplete="off" href="#">
                                 </button>
-                                <button id="chatgpt-clear" class="chatgpt-button" title="清空当前对话" autocomplete="off"
-                                    class="btn" href="#">
-                                    <svg t="1678029235750" class="icon" viewBox="0 0 1024 1024" version="1.1"
-                                        xmlns="http://www.w3.org/2000/svg" p-id="3679" width="200" height="200">
-                                        <path
-                                            d="M824.4 438.8c0-37.6-30-67.6-67.6-67.6l-135.2 0L621.6 104.8c0-37.6-30-67.6-67.6-67.6-37.6 0-67.6 30-67.6 67.6l0 266.4L358.8 371.2c-37.6 0-67.6 30-67.6 67.6l0 67.6L828 506.4l0-67.6L824.4 438.8 824.4 438.8zM824.4 574c-11.2 0-536.8 0-536.8 0S250 972 88.4 972L280 972c75.2 0 108.8-217.6 108.8-217.6s33.6 195.2 3.6 217.6l105.2 0c-3.6 0 0 0 11.2 0 52.4-7.6 60-247.6 60-247.6s52.4 244 45.2 244c-26.4 0-78.8 0-105.2 0l0 0 154 0c-7.6 0 0 0 11.2 0 48.8-11.2 52.4-187.6 52.4-187.6s22.4 187.6 15.2 187.6c-18.8 0-48.8 0-67.6 0l-3.6 0 90 0C895.6 972 903.2 784.4 824.4 574L824.4 574z"
-                                            p-id="3680"></path>
-                                    </svg>
+                                <button id="chatgpt-cancel" class="chatgpt-button cancelicon mediumicon d-none"
+                                    title="取消请求" autocomplete="off" href="#">
+                                </button>
+                                <button id="chatgpt-clear" class="chatgpt-button clearicon mediumicon" title="清空当前对话"
+                                    autocomplete="off" href="#">
                                 </button>
                                 <div style="height: 0px;"></div>
                             </div>
@@ -95,7 +131,10 @@
     <script src="js/main.js"></script>
     <script src="js/sensitive.js"></script>
 
-    <script src="js/chatgpt.js"></script>
+    <script src="js/chatgpt/tools.js"></script>
+    <script src="js/chatgpt/constvalue.js"></script>
+    <script src="js/chatgpt/interactive.js"></script>
+    <script src="js/chatgpt/chatgpt.js"></script>
 </body>
 
 </html>
