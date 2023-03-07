@@ -9,11 +9,11 @@ function createSession() {
     return { "system": __systemDefination, "conversations": [], "tokenUsed": 0 };
 }
 
-function createSessionItem(session) {
+function createSessionItem(session, sessionId) {
     if (session == null) {
         session = createSession();
     }
-    return { "session": session, "titleSetted": false, "title": "New Chat", "message": "等待输入..." };
+    return { "sessionId":sessionId, "session": session, "titleSetted": false, "title": "New Chat", "message": "等待输入..." };
 }
 
 //从currentSession遍历所有属性，如果属性名为“lastSessionId”则跳过，否则调用appendSessionItem方法。
@@ -60,29 +60,17 @@ function appendSessionListItem(sessionId) {
     time.classList.add("time");
     content.appendChild(time);
 
-    var toolbar = document.createElement('ul');
-    toolbar.classList.add("chatgpt-toolbar");
-
-    var li = document.createElement('li');
-    var editButton = newButton(sessionId, "editicon", "编辑");
-    //为deleteButton添加click事件响应deleteSession，并把deleteButton的value传给该函数
-    editButton.addEventListener("click", function () {
-        editSession(this);
-    });
-    li.appendChild(editButton);
-
-    toolbar.appendChild(li);
-    var li = document.createElement('li');
-    var deleteButton = newButton(sessionId, "deleteicon", "删除会话");
-    //为deleteButton添加click事件响应deleteSession，并把deleteButton的value传给该函数
-    deleteButton.addEventListener("click", function () {
-        deleteSession(this.value);
-    });
-    li.appendChild(deleteButton);
-    toolbar.appendChild(li);
-
-
+    const toolbar = buildupSessionItemToolbar(sessionId);
     sessionItemContainer.appendChild(toolbar);
+    //只有鼠标挪到sessionItemContainer上，toolbar才会显示
+    toolbar.style.display = "none";
+    sessionItemContainer.addEventListener("mouseover", function () {
+        toolbar.style.display = "block";
+    });
+    sessionItemContainer.addEventListener("mouseout", function () {
+        toolbar.style.display = "none";
+    });
+
     //倒序插入，新的在最上面
     var sessionList = document.querySelector(".session-list");
     if (sessionList.childNodes.length > 0) {
@@ -92,14 +80,40 @@ function appendSessionListItem(sessionId) {
         sessionList.appendChild(sessionItemContainer);
     }
 
-    //只有鼠标挪到containerDiv上，toolbar才会显示
-    toolbar.style.display = "none";
-    sessionItemContainer.addEventListener("mouseover", function () {
-        toolbar.style.display = "block";
+}
+
+function buildupSessionItemToolbar(sessionId){
+    const toolbar = document.createElement('ul');
+    toolbar.classList.add("chatgpt-toolbar");
+
+    let li = document.createElement('li');
+    var editButton = newButton(sessionId, "editicon", "编辑");
+    //为deleteButton添加click事件响应deleteSession，并把deleteButton的value传给该函数
+    editButton.addEventListener("click", function () {
+        editSession(this);
     });
-    sessionItemContainer.addEventListener("mouseout", function () {
-        toolbar.style.display = "none";
+    li.appendChild(editButton);
+    toolbar.appendChild(li);
+
+    li = document.createElement('li');
+    var exportButton = newButton(sessionId, "exporticon", "导出会话");
+    //为deleteButton添加click事件响应deleteSession，并把deleteButton的value传给该函数
+    exportButton.addEventListener("click", function () {
+        exportSession(this.value);
     });
+    li.appendChild(exportButton);
+    toolbar.appendChild(li);
+    
+    li = document.createElement('li');
+    var deleteButton = newButton(sessionId, "deleteicon", "删除会话");
+    //为deleteButton添加click事件响应deleteSession，并把deleteButton的value传给该函数
+    deleteButton.addEventListener("click", function () {
+        deleteSession(this.value);
+    });
+    li.appendChild(deleteButton);
+    toolbar.appendChild(li);
+
+    return toolbar;
 }
 
 function editSession(editButton) {
@@ -169,6 +183,11 @@ function editSession(editButton) {
         confirmButton.parentNode.removeChild(confirmButton);
         cancelButton.parentNode.removeChild(cancelButton);
     }
+}
+
+function exportSession(sessionId){
+    var sessionItem = _sessions[sessionId];
+    exportJsonToFile(sessionItem, sessionItem.title + sessionId + ".session");
 }
 
 function deleteSession(sessionId) {
@@ -300,9 +319,13 @@ class Conversation {
 
 function appendSession(role, content, promptId, chatId, timeDiff, index, tokenUsed, filtered, sessionId) {
     var sessionItem = _sessions[sessionId];
+    if (sessionItem.sessionId == null) {
+        //老版本的session没有sessionId，这里更新一下
+        sessionItem.sessionId = sessionId;
+    }
     if (sessionItem == null) {
         //说明是新建的会话
-        sessionItem = createSessionItem(_tempSessions[sessionId]);
+        sessionItem = createSessionItem(_tempSessions[sessionId], sessionId);
         _sessions[sessionId] = sessionItem;
         appendSessionListItem(sessionId);
         if (sessionId == _currentSessionId) {
@@ -350,13 +373,43 @@ function printMessage(content, role, chatId, promptId, index, filtered) {
     containerDiv.classList.add("chatgpt-box-" + (!isNaN(index) ? index : 0).toString());
     conversationContainer.appendChild(containerDiv);
 
-    var toolbar = document.createElement('ul');
+    var toolbar = buildupSessionToolbar(chatId, promptId, filtered);
+    containerDiv.appendChild(toolbar);
+
+    var messageDiv = document.createElement('div');
+    messageDiv.className = "chatgpt-message";
+    messageDiv.innerHTML = formatMessage(content);
+    containerDiv.appendChild(messageDiv);
+
+    var chatWindow = document.getElementById('chatgpt-session');
+    chatWindow.appendChild(conversationContainer);
+    //自动滚动到chatWindow的最下方
+    chatWindow.scrollTop = chatWindow.scrollHeight;
+
+    //只有鼠标挪到containerDiv上，toolbar才会显示
+    // toolbar.style.display = "none";
+    // containerDiv.addEventListener("mouseover", function() {
+    //     toolbar.style.display = "block";
+    //   });
+    //   containerDiv.addEventListener("mouseout", function() {
+    //     toolbar.style.display = "none";
+    //   });
+}
+
+function buildupSessionToolbar(chatId, promptId, filtered){
+    var toolbar = document.createElement('ol');
     toolbar.classList.add("chatgpt-toolbar");
 
     var li = document.createElement('li');
-    //在containerDiv中添加一个Checkbox，class为message-check
     let newCheckbox = document.createElement("input");
-    newCheckbox.type = "checkbox";
+    if (chatId != promptId) {
+        //说明是响应
+        newCheckbox.type = "checkbox";
+    }
+    else{
+        newCheckbox.type = "checkbox";
+    }
+    newCheckbox.name = promptId;
     newCheckbox.checked = !filtered;
     newCheckbox.value = chatId;
     newCheckbox.className = "message-check";
@@ -392,27 +445,7 @@ function printMessage(content, role, chatId, promptId, index, filtered) {
     li.appendChild(refreshButton);
     toolbar.appendChild(li);
 
-    containerDiv.appendChild(toolbar);
-
-    var messageDiv = document.createElement('div');
-    messageDiv.className = "chatgpt-message";
-    messageDiv.innerHTML = formatMessage(content);
-    containerDiv.appendChild(messageDiv);
-
-    var chatWindow = document.getElementById('chatgpt-session');
-    chatWindow.appendChild(conversationContainer);
-    //自动滚动到chatWindow的最下方
-    chatWindow.scrollTop = chatWindow.scrollHeight;
-
-    //只有鼠标挪到containerDiv上，toolbar才会显示
-    // toolbar.style.display = "none";
-    // containerDiv.addEventListener("mouseover", function() {
-    //     toolbar.style.display = "block";
-    //   });
-
-    //   containerDiv.addEventListener("mouseout", function() {
-    //     toolbar.style.display = "none";
-    //   });
+    return toolbar;
 }
 
 //对信息做过滤
@@ -571,34 +604,6 @@ async function callChatGPT(prompt) {
     await xhr.send(data);
 }
 
-function buildCallXhr() {
-    var xhr = new XMLHttpRequest();
-    xhr.open("POST", __openAIChatUrl, true);
-    // xhr.open("POST", __openAIUrl, true);
-    xhr.setRequestHeader("Content-Type", "application/json");
-    // 设置Key
-    xhr.setRequestHeader("Authorization", _openAIKey);
-    return xhr;
-}
-
-function buildCallPlayload(messages, n) {
-    var playload = {
-        "messages": messages,
-        "temperature": 1.2, //What sampling temperature to use, between 0 and 2. Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic.
-        "top_p": 1, //An alternative to sampling with temperature, called nucleus sampling, where the model considers the results of the tokens with top_p probability mass. So 0.1 means only the tokens comprising the top 10% probability mass are considered.
-        "frequency_penalty": 0, //控制重复性；Number between -2.0 and 2.0. Positive values penalize new tokens based on their existing frequency in the text so far, decreasing the model's likelihood to repeat the same line
-        "presence_penalty": 0, //控制重复性；Number between -2.0 and 2.0. Positive values penalize new tokens based on whether they appear in the text so far, increasing the model's likelihood to talk about new topics.
-        "model": __openAIModel,
-        "max_tokens": 2560,
-        "stream": false, //Whether to stream back partial progress. If set, tokens will be sent as data-only server-sent events as they become available, with the stream terminated by a data: [DONE] message.
-        "n": n, //How many chat completion choices to generate for each input message.
-        // "best_of": n,
-        // "logit_bias": null, //Modify the likelihood of specified tokens appearing in the completion
-    };
-    var data = JSON.stringify(playload);
-    return data;
-}
-
 function cancelPrompt() {
     if (_currentXhr != null) {
         _currentXhr.abort();
@@ -671,19 +676,46 @@ function importSessions() {
         reader.onload = () => {
             const fileContent = reader.result;
             const importSessions = JSON.parse(fileContent);
-            if (_sessions.lastSessionId == null) {
-                _sessions.lastSessionId = importSessions.lastSessionId;
-            }
-            //遍历importSessions的所有属性，如果_sessions有此属性，则跳过，否则为_sessions添加该属性。
-            for (const property in importSessions) {
-                if (property != "lastSessionId") {
-                    if (_sessions.hasOwnProperty(property)) {
-                        continue;
+            let currentsessionChanged = false;
+            if(importSessions.hasOwnProperty("lastSessionId")){
+                //说明是一系列Sesssion
+                if (_sessions.lastSessionId == null) {
+                    _currentSessionId = importSessions.lastSessionId
+                    currentsessionChanged = true;
+                }
+                //遍历importSessions的所有属性，如果_sessions有此属性，则跳过，否则为_sessions添加该属性。
+                for (const property in importSessions) {
+                    if (property != "lastSessionId") {
+                        if (_sessions.hasOwnProperty(property)) {
+                            continue;
+                        }
+                        _sessions[property] = importSessions[property];
                     }
-                    _sessions[property] = importSessions[property];
                 }
             }
+            else if (importSessions.hasOwnProperty("sessionId")) {
+                let sessionId = importSessions.sessionId;
+                //说明是一个Session
+                if (_sessions.hasOwnProperty(sessionId)) {
+                    if(!confirm(`会话"${importSessions.title}"存在，是否覆盖?`)){
+                        return;
+                    }
+                }
+                _sessions[sessionId] = importSessions;
+                currentsessionChanged = sessionId == _currentSessionId;
+                if(currentsessionChanged){
+                    //更新下当前的会话
+                    _currentSession = importSessions.session;
+                }
+            }
+            else {
+                return;
+            }
             initSessions();
+            if(currentsessionChanged){
+                initSession();
+            }
+            updateSessionsToStorage();
         };
     };
 
@@ -692,22 +724,7 @@ function importSessions() {
 
 //将json对象_sessions导出为文件，并下载。
 function exportSessions() {
-    const fileName = "sessions.session";
-
-    // create a blob from the JSON object
-    const fileToSave = new Blob([JSON.stringify(_sessions)], {
-        type: "application/json",
-    });
-
-    // create a link for download and click it programmatically
-    const downloadLink = document.createElement("a");
-    downloadLink.download = fileName;
-    downloadLink.href = URL.createObjectURL(fileToSave);
-
-    // Prompt user to download the file.
-    document.body.appendChild(downloadLink);
-    downloadLink.click();
-    document.body.removeChild(downloadLink);
+    exportJsonToFile(_sessions, "sessions.session");
 }
 
 function clearSession() {
@@ -751,21 +768,8 @@ function systemInputModeChange() {
 //将json对象_currentSessions导出为文件，提示选择位置下载。
 function exportCurrentSession() {
     // Convert JSON object to string
-    const fileName = "session.md";
     const content = convertToMarkdown(_currentSession);
-
-    // Create new blob from the converted string
-    const blob = new Blob([content], { type: 'application/txt' });
-
-    // Create a link element with the url to the blob object
-    const downloadLink = document.createElement('a');
-    downloadLink.download = fileName;
-    downloadLink.href = window.URL.createObjectURL(blob);
-
-    // Prompt user to download the file.
-    document.body.appendChild(downloadLink);
-    downloadLink.click();
-    document.body.removeChild(downloadLink);
+    exportStringToFile(content, "session.md");
 }
 
 function convertToMarkdown(session) {
@@ -803,7 +807,7 @@ function init() {
             }
         }
         //设置各按钮事件。
-        document.getElementById("chatgpt-input").addEventListener("keyup", inputEnter);
+        document.getElementById("chatgpt-input").addEventListener("keydown", inputEnter);
         document.getElementById("chatgpt-sumit").addEventListener("click", sendPrompt);
         document.getElementById("chatgpt-cancel").addEventListener("click", cancelPrompt);
         document.getElementById("chatgpt-clear").addEventListener("click", clearSession);

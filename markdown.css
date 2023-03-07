@@ -2,10 +2,16 @@
     margin-bottom: 5px;
 }
 
-.chatgpt-message ol {
+.chatgpt-message ol, .chatgpt-message  ul {
     padding-inline-start: 20px;
+    margin-top: 0;
+    margin-bottom: 10px;
 }
 
-.chatgpt-message li {
+.chatgpt-message ol li {
+    list-style: disc;
+}
+
+.chatgpt-message ul li {
     list-style: decimal;
 }

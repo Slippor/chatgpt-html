@@ -3,3 +3,4 @@ const __systemDefination = "You are a powerful assistant.";
 const __openAIChatUrl = "https://api.openai.com/v1/chat/completions";
 const __openAIUrl = "https://api.openai.com/v1/completions";
 const __openAIModel = "gpt-3.5-turbo";
+const __maxToken = 1024;

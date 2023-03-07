@@ -1,27 +1,27 @@
-var loadingInterval = null;
+let _loadingInterval = null;
 
 function printStatus(message, loading) {
-    var statusLabel = document.getElementById('chatgpt-status');
+    const statusLabel = document.getElementById('chatgpt-status');
     if (loading) {
         let i = 0;
-        loadingInterval = setInterval(() => {
+        _loadingInterval = setInterval(() => {
             statusLabel.innerText = `${message} 加载中，请等待${'.'.repeat(i % 6)}`;
             i++;
         }, 500);
     }
     else {
-        clearInterval(loadingInterval);
+        clearInterval(_loadingInterval);
         statusLabel.innerText = message;
     }
 }
 
 function printSystem(message) {
-    var systemErea = document.getElementById('chatgpt-systeminput');
+    const systemErea = document.getElementById('chatgpt-systeminput');
     systemErea.value = message;
 }
 
 function setInput(message) {
-    var input = document.getElementById("chatgpt-input");
+    const input = document.getElementById("chatgpt-input");
     input.value = message;
     input.focus();
 }
@@ -48,7 +48,7 @@ function updateButtonState(state) {
 }
 
 function setElementActive(elementId) {
-    var items = document.getElementsByClassName("active");
+    let items = document.getElementsByClassName("active");
     if (items.length > 0) {
         for (let i = 0; i < items.length; i++) {
             const item = items[i];
@@ -67,21 +67,46 @@ function deleteElement(sessionId) {
 }
 
 function newButton(buttonValue, iconclass, title) {
-    var button = document.createElement("button");
+    const button = document.createElement("button");
     button.classList.add('chatgpt-button', iconclass, "smallicon");
     button.setAttribute('autocomplete', 'off');
     button.title = title;
     button.value = buttonValue;
     return button;
 }
+//将json对象导出为文件，并下载。
+function exportFile(exportItem, fileName) {
+    // create a link for download and click it programmatically
+    const downloadLink = document.createElement("a");
+    downloadLink.download = fileName;
+    downloadLink.href = URL.createObjectURL(exportItem);
+    // Prompt user to download the file.
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+    document.body.removeChild(downloadLink);
+}
+
+function exportJsonToFile(jsonObject, fileName){
+    const blob = new Blob([JSON.stringify(jsonObject)], {
+        type: "application/json",
+    });
+    exportFile(blob, fileName);
+}
+
+function exportStringToFile(stringObject, fileName){
+    const blob = new Blob([stringObject], {
+        type: "application/txt",
+    });
+    exportFile(blob, fileName);
+}
 
 function interactive_init(){
-    var sidebutton = document.getElementById("toggle-sidebar-btn");
-    var mainbutton = document.getElementById("toggle-main-btn");
+    const sidebutton = document.getElementById("toggle-sidebar-btn");
+    const mainbutton = document.getElementById("toggle-main-btn");
     //为指示按钮添加点击事件的监听器
     sidebutton.addEventListener("click", toggleSidebar);
     mainbutton.addEventListener("click", toggleSidebar);
-    var dnone = "d-none";
+    const dnone = "d-none";
     function toggleSidebar() {
         //获取当前sidebar的显示状态
         const sidebar = document.getElementById("sidebar");
@@ -99,9 +124,9 @@ function interactive_init(){
         }
     }
 
-    var scrollDiv = document.getElementById('chatgpt-session');
-    var scrollBtn = document.getElementById('chatgpt-scrollbtn');
-    var scrollbtntobottom = document.getElementById('chatgpt-scrollbtntobottom');
+    const scrollDiv = document.getElementById('chatgpt-session');
+    const scrollBtn = document.getElementById('chatgpt-scrollbtn');
+    const scrollbtntobottom = document.getElementById('chatgpt-scrollbtntobottom');
 
     function toggleScrollBtn() {
         if (scrollDiv.scrollTop > 0) {

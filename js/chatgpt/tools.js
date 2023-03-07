@@ -19,12 +19,12 @@ function getLocalStorage(key) {
 }
 
 function getDateTimeString(time) {
-    var dateTime = null;
+    let dateTime = null;
     if(time == null){
         dateTime = new Date();
     }
     else {
-        var n = Date.parse(time);
+        let n = Date.parse(time);
         //检查time是不是日期时间类型
         if (isNaN(n)) {
             return time.toString();
